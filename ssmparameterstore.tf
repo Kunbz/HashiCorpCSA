@@ -34,6 +34,23 @@ module "store_write" {
       overwrite   = "true"
       description = "csa mysql database master endpoint"
       kms_arn     = module.kms_key.key_arn
+    },
+    {
+      name        = "/csa/efs/id"
+      value       = module.efs.id
+      type        = "SecureString"
+      overwrite   = "true"
+      description = "csa mysql database master endpoint"
+      kms_arn     = module.kms_key.key_arn
+    },
+    {
+      name        = "/csa/alb/dns_name"
+      value       = module.alb.lb_dns_name
+      type        = "SecureString"
+      overwrite   = "true"
+      description = "csa mysql database master endpoint"
+      kms_arn     = module.kms_key.key_arn
     }
   ]
+  
 }
