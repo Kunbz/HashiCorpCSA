@@ -33,7 +33,7 @@ module "autoscaling" {
   instance_type          = "t3.micro"
   ebs_optimized          = true
   enable_monitoring      = true
-  vpc_zone_identifier    = module.network.private_subnets
+  vpc_zone_identifier    = module.network.public_subnets
   security_groups        = [module.asg-sg.security_group_id]
   user_data_base64              = "${data.template_cloudinit_config.config.rendered}"
   iam_instance_profile_arn = module.iam_assumable_role.this_iam_instance_profile_arn
