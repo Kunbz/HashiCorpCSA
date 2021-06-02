@@ -1,15 +1,15 @@
-
-data "template_file" "hostscript" {
-  template = "${file("./userdata.sh.tpl")}"
+data "template_file" "script" {
+  template = file("${path.module}/userdata.sh")
 }
 
+
 data "template_cloudinit_config" "config" {
-  gzip = false
+  gzip          = false
   base64_encode = true
-# Main cloud-config configuration file.
+  # Main cloud-config configuration file.
   part {
-    content = data.template_file.hostscript.rendered
- }
+    content      = data.template_file.script.rendered
+  }
 }
 
 module "autoscaling" {
@@ -35,8 +35,7 @@ module "autoscaling" {
   enable_monitoring      = true
   vpc_zone_identifier    = module.network.private_subnets
   security_groups        = [module.asg-sg.security_group_id]
-  # user_data              = filebase64("./userdata.sh")
-  user_data              = data.template_cloudinit_config.config.rendered
+  user_data_base64              = "${data.template_cloudinit_config.config.rendered}"
   iam_instance_profile_arn = module.iam_assumable_role.this_iam_instance_profile_arn
 
 }
