@@ -21,7 +21,7 @@ module "autoscaling" {
   enable_monitoring      = true
   vpc_zone_identifier    = module.network.private_subnets
   security_groups        = [module.asg-sg.security_group_id]
-  user_data              = file("userdata.sh")
+  user_data              = file("./userdata.sh")
   iam_instance_profile_arn = module.iam_assumable_role.this_iam_instance_profile_arn
 
 }
