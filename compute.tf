@@ -1,6 +1,6 @@
 
 data "template_file" "hostscript" {
-  template = "${file("${path.module}/userdata.sh.tpl")}"
+  template = "${file("./userdata.sh.tpl")}"
 }
 
 data "template_cloudinit_config" "config" {
