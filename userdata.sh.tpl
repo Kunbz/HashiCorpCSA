@@ -85,4 +85,3 @@ EOF
 chmod 755 /home/ec2-user/update_wp_ip.sh
 echo "/home/ec2-user/update_wp_ip.sh" >> /etc/rc.local
 /home/ec2-user/update_wp_ip.sh
-
