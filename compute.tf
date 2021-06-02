@@ -21,7 +21,7 @@ module "autoscaling" {
   max_size          = 3
   min_size          = 1
   desired_capacity  = 1
-  health_check_type = "EC2"
+  health_check_type = "EC2" #change later
 
   # Launch template
   lt_name                = "csa_lc"
@@ -37,5 +37,6 @@ module "autoscaling" {
   security_groups        = [module.asg-sg.security_group_id]
   user_data_base64              = "${data.template_cloudinit_config.config.rendered}"
   iam_instance_profile_arn = module.iam_assumable_role.this_iam_instance_profile_arn
+  target_group_arns = module.alb.target_group_arns
 
 }
