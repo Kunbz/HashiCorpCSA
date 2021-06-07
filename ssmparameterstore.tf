@@ -52,5 +52,5 @@ module "store_write" {
       kms_arn     = module.kms_key.key_arn
     }
   ]
-  
+
 }

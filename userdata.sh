@@ -69,12 +69,31 @@ find /var/www -type f -exec chmod 0664 {} \;
 
 cat >> /home/ec2-user/update_wp_ip.sh<< 'EOF'
 #!/bin/bash
-source <(php -r 'require("/var/www/html/wp-config.php"); echo("DB_NAME=".DB_NAME."; DB_USER=".DB_USER."; DB_PASSWORD=".DB_PASSWORD."; DB_HOST=".DB_HOST); ')
-SQL_COMMAND="mysql -u $DB_USER -h $DB_HOST -p$DB_PASSWORD $DB_NAME -e"
-OLD_URL=$(mysql -u $DB_USER -h $DB_HOST -p$DB_PASSWORD $DB_NAME -e 'select option_value from wp_options where option_id = 1;' | grep http)
+DBPassword=$(aws ssm get-parameters --region us-east-1 --names /csa/database/master_password --with-decryption --query Parameters[0].Value)
+DBPassword=`echo $DBPassword | sed -e 's/^"//' -e 's/"$//'`
 
-ALBDNSNAME=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/ALBDNSNAME --query Parameters[0].Value)
+DBRootPassword=$(aws ssm get-parameters --region us-east-1 --names /csa/database/master_password --with-decryption --query Parameters[0].Value)
+DBRootPassword=`echo $DBRootPassword | sed -e 's/^"//' -e 's/"$//'`
+
+DBUser=$(aws ssm get-parameters --region us-east-1 --names /csa/database/master_username --with-decryption --query Parameters[0].Value)
+DBUser=`echo $DBUser | sed -e 's/^"//' -e 's/"$//'`
+
+DBName=$(aws ssm get-parameters --region us-east-1 --names /csa/database/database_name --with-decryption --query Parameters[0].Value)
+DBName=`echo $DBName | sed -e 's/^"//' -e 's/"$//'`
+
+DBEndpoint=$(aws ssm get-parameters --region us-east-1 --names /csa/database/endpoint --with-decryption --query Parameters[0].Value)
+DBEndpoint=`echo $DBEndpoint | sed -e 's/^"//' -e 's/"$//'`
+
+EFSFSID=$(aws ssm get-parameters --region us-east-1 --names /csa/efs/id --with-decryption --query Parameters[0].Value)
+EFSFSID=`echo $EFSFSID | sed -e 's/^"//' -e 's/"$//'`
+
+ALBDNSNAME=$(aws ssm get-parameters --region us-east-1 --names /csa/alb/dns_name --with-decryption --query Parameters[0].Value)
 ALBDNSNAME=`echo $ALBDNSNAME | sed -e 's/^"//' -e 's/"$//'`
+
+source <(php -r 'require("/var/www/html/wp-config.php"); echo("DB_NAME=".DB_NAME."; DB_USER=".DB_USER."; DB_PASSWORD=".DB_PASSWORD."; DB_HOST=".DB_HOST); ')
+SQL_COMMAND="mysql -u $DBUser -h $DBEndpoint -p$DBPassword $DBName -e"
+OLD_URL=$(mysql -u $DBUser -h $DBEndpoint -p$DBPassword $DBName -e 'select option_value from wp_options where option_id = 1;' | grep http)
+
 
 $SQL_COMMAND "UPDATE wp_options SET option_value = replace(option_value, '$OLD_URL', 'http://$ALBDNSNAME') WHERE option_name = 'home' OR option_name = 'siteurl';"
 $SQL_COMMAND "UPDATE wp_posts SET guid = replace(guid, '$OLD_URL','http://$ALBDNSNAME');"

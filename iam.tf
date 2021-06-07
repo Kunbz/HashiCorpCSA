@@ -32,13 +32,16 @@ module "iam_assumable_role" {
 
   create_role = true
 
-  role_name         = "csa-iam-role"
+  role_name               = "csa-iam-role"
   create_instance_profile = true
   role_path               = "/"
 
   custom_role_policy_arns = [
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   ]
+
+  role_requires_mfa = false
+
   number_of_custom_role_policy_arns = 1
 
 }
